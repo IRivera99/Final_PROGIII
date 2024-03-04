@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.js"></script>
+    <script>
+        $(document).ready(function () {
+            let id = "";
+            $.ajax({
+                url: "https://localhost:7046/Configuracion/Get",
+                type: "GET",
+                success: function (result) {
+                    id = result.id;
+                    $("#padtop").val(result.paddingTop);
+                    $("#padleft").val(result.paddingLeft);
+                    $("#color").val(result.color);
+                    if (result.border) {
+                        $("#border").prop("checked", true);
+                    }
+                    $("#almsg").val(result.mensajeAlert);
+                },
+                error: function (error) {
+                    alert(error.status + ": " + error.responseText);
+                    console.log(error);
+                }
+            });
+            $("#save").click(function() {
+                if ($("#configForm").valid()) {
+                    let config = {};
+                    config.id = id;
+                    config.paddingTop = $("#padtop").val();
+                    config.paddingLeft = $("#padleft").val();
+                    config.color = $("#color").val();
+                    if ($("#border").prop("checked")) {
+                        config.border = true;
+                    }
+                    else {
+                        config.border = false;
+                    }
+                    config.mensajeAlert = $("#almsg").val();
+                    console.log(config);
+                    $.ajax({
+                        url: "https://localhost:7046/Configuracion/Put",
+                        type: "PUT",
+                        dataType: "json",
+                        contentType: "application/json",
+                        data: JSON.stringify(config),
+                        success: function (result) {
+                            alert("Configuración modificada con éxito");
+                            console.log(result)
+                        },
+                        error: function () {
+                            alert("Error al modificar la configuracion");
+                        }
+                    })
+                }
+            });
+            $("#configForm").validate({
+                rules: {
+                    padtop: {
+                        required: true,
+                        min: 0
+                    },
+                    padleft: {
+                        required: true,
+                        min: 0
+                    },
+                    almsg: "required"
+                },
+                messages: {
+                    padtop: {
+                        required: "Ingrese un padding...",
+                        min: "Ingrese una cantidad válida...",
+                        number: "Ingrese un número..."
+                    },
+                    padleft: {
+                        required: "Ingrese un padding...",
+                        min: "Ingrese una cantidad válida...",
+                        number: "Ingrese un número..."
+                    },
+                    almsg: "Ingrese un texto de alerta..."
+                },
+                errorClass: "is-invalid"
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Final</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="index.html">Texto</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="config.html">Configuracion</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container w-50 mt-5">
+        <form id="configForm">
+            <div class="mb-3">
+                <label for="padtop" class="form-label">Padding Top</label>
+                <input type="number" class="form-control" id="padtop" name="padtop">
+            </div>
+            <div class="mb-3">
+                <label for="padleft" class="form-label">Padding Left</label>
+                <input type="number" class="form-control" id="padleft" name="padleft">
+            </div>
+            <div class="mb-3">
+                <label for="border" class="form-label">Border</label>
+                <input class="form-check-input" type="checkbox" value="" id="border" name="border">
+            </div>
+            <div class="mb-3">
+                <label for="color" class="form-label">Color</label>
+                <input type="color" class="form-control" id="color" name="color">
+            </div>
+            <div class="mb-3">
+                <label for="almsg" class="form-label">Mensaje</label>
+                <input type="text" class="form-control" id="almsg" name="almsg">
+            </div>
+            <button id="save" type="button" class="btn btn-primary">Agregar</button>
+        </form>
+    </div>
+</body>
+
+</html>
